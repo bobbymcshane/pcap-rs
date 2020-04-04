@@ -273,11 +273,11 @@ pub struct Header {
 
 /// A single Record in the file.
 #[derive(PartialEq, Debug)]
-pub struct Record {
+pub struct Record<'a> {
     pub ts_sec: u32,
     pub ts_nanosec: u32,
     pub orig_len: u32,
-    //pub data: Vec<u8>,
+    pub data: &'a [u8],
 }
 
 named_args!(parse_header_e(e: Endianness, nsec: bool)<Header>,
@@ -322,13 +322,13 @@ named_args!(pub parse_record(e: Endianness, nano_sec: bool)<Record>, do_parse!(
     ts_subsec: u32!(e) >>
     incl_len: u32!(e) >>
     orig_len: u32!(e) >>
-    _data: take!(incl_len) >>
+    data: take!(incl_len) >>
 
     (Record {
         ts_sec: ts_sec,
         ts_nanosec: if nano_sec {ts_subsec} else {ts_subsec*1000},
-        orig_len: orig_len //,
-        //data: Vec::from(data)
+        orig_len: orig_len,
+        data: data
     })
 ));
 
@@ -410,7 +410,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 0,
             orig_len: 0,
-            //data: Vec::new(),
+            data: &[],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Big, false),
@@ -425,7 +425,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: Vec::new(),
+            data: &[],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Big, true),
@@ -440,7 +440,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: vec![10, 11],
+            data: &vec![10, 11][..],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Big, true),
@@ -455,7 +455,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: vec![10, 11, 12],
+            data: &vec![10, 11, 12][..],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Big, true),
@@ -471,7 +471,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 0,
             orig_len: 0,
-            //data: Vec::new(),
+            data: &[],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Little, true),
@@ -486,7 +486,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: Vec::new(),
+            data: &[],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Little, true),
@@ -501,7 +501,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: vec![10, 11],
+            data: &vec![10, 11][..],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Little, true),
@@ -516,7 +516,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2,
             orig_len: 3,
-            //data: vec![10, 11, 12],
+            data: &vec![10, 11, 12][..],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Little, true),
@@ -531,7 +531,7 @@ mod tests {
             ts_sec: 1,
             ts_nanosec: 2000,
             orig_len: 3,
-            //data: vec![10, 11, 12],
+            data: &vec![10, 11, 12][..],
         };
         assert_eq!(
             parse_record(&i[..], Endianness::Little, false),

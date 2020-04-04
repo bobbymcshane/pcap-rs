@@ -1,3 +1,6 @@
+fn main() {
+}
+/*
 extern crate pcap_rs;
 
 use pcap_rs::iter::PcapIterator;
@@ -19,4 +22,4 @@ fn main() {
             println!("{:?}", b);
         }
     }
-}
+}*/

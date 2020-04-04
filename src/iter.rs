@@ -5,7 +5,7 @@ use {parse_header, parse_record, Header, Record};
 
 /// Represents an entry in the file.
 #[derive(PartialEq, Debug)]
-pub enum Block {
+pub enum Block<'a> {
     /// Header of the file.
     ///
     /// This type of entry occurs only once at the beginning of each file.
@@ -13,7 +13,7 @@ pub enum Block {
     /// Packet record.
     ///
     /// This type of entry occurs until the end of the file is reached.
-    Record(Record),
+    Record(Record<'a>),
 
     /// Parsing error.
     Error(ErrorKind),
@@ -37,6 +37,7 @@ impl<T: BufRead> PcapIterator<T> {
     }
 }
 
+/*
 impl<T: BufRead> Iterator for PcapIterator<T> {
     type Item = Block;
     fn next(&mut self) -> Option<Block> {
@@ -77,3 +78,4 @@ impl<T: BufRead> Iterator for PcapIterator<T> {
         })
     }
 }
+*/
