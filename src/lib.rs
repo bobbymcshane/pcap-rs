@@ -14,7 +14,7 @@ extern crate nom;
 #[cfg(not(feature = "core"))]
 pub mod iter;
 
-use nom::*;
+pub use nom::*;
 
 /// Enumerates all frame format supported by pcap.
 #[allow(non_camel_case_types)]
