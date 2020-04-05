@@ -332,6 +332,12 @@ named_args!(pub parse_record(e: Endianness, nano_sec: bool)<Record>, do_parse!(
     })
 ));
 
+named_args!(pub parse_timestamp(e: Endianness, nano_sec: bool)<u64>, do_parse!(
+    ts_sec: u32!(e) >>
+    ts_subsec: u32!(e) >>
+    (if nano_sec {ts_subsec} else {ts_subsec*1000} as u64 + ts_sec as u64)
+));
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -460,6 +466,15 @@ mod tests {
         assert_eq!(
             parse_record(&i[..], Endianness::Big, true),
             Ok((&[128][..], r))
+        );
+    }
+    #[test]
+    fn parse_timestamp_le_empty() {
+        let i = b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
+                  \x00\x00\x00\x00\x0a";
+        assert_eq!(
+            parse_timestamp(&i[..], Endianness::Little, true),
+            Ok((&[0, 0, 0, 0, 0, 0, 0, 0, 10][..], 1))
         );
     }
 
